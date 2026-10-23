@@ -1,0 +1,32 @@
+name: Build RuView Windows Server
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Get RuView source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.89.0
+
+      - name: Build sensing server
+        working-directory: v2
+        run: cargo build --release -p wifi-densepose-sensing-server
+
+      - name: Upload the executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: ruview-sensing-server-windows-x64
+          path: v2/target/release/sensing-server.exe
+          if-no-files-found: error
+          retention-days: 3
